@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  sustain-database:
+    image: mongo:latest
+    container_name: sustain-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "localhost-root"
+      MONGO_INITDB_ROOT_PASSWORD: "localhost-password"
+    ports:
+      - "27017:27017"
+    volumes:
+      - sustain-db-data:/data/db
+    networks:
+      - core-backend-network
+
+volumes:
+  sustain-db-data:
+
+networks:
+  core-backend-network:
