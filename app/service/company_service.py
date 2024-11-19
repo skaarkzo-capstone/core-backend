@@ -1,5 +1,6 @@
-from app.model.dto.company_dto import CompanyDTO
+from app.model.dto.company_evaluated_dto import CompanyDTO
 from app.db import database
+
 
 class CompanyService:
 
