@@ -1,6 +1,7 @@
 from datetime import datetime
 from app.db import database
 
+
 async def seed_companies():
     companies_collection = database["companies"]
     evaluated_companies_collection = database["evaluated_companies"]
@@ -17,6 +18,9 @@ async def seed_companies():
         },
         {
             "name": "Horizon Hospitality Group",
+        },
+        {
+            "name": "No Scraped Data Company",
         },
     ]
 
