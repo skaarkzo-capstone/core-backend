@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_PREFIX: str = "/api/main"
 
+    SCRAPER_BASE_URL: str = "http://localhost:8001"
+
     MONGO_USER: str = "localhost-root"
     MONGO_PASSWORD: str = "localhost-password"
     MONGO_HOST: str = "localhost"
