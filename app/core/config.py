@@ -9,7 +9,8 @@ class Settings(BaseSettings):
 
     SCRAPER_BASE_URL: str = "http://localhost:8001"
 
-    MAX_TIMEOUT: Timeout = Timeout(120)
+    # TODO: Add a non-None timeout when data scraper handles ending process on no response received.
+    MAX_TIMEOUT: Timeout = Timeout(None)
 
     MONGO_USER: str = "localhost-root"
     MONGO_PASSWORD: str = "localhost-password"
