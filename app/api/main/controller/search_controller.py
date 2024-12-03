@@ -8,5 +8,5 @@ router = APIRouter()
 
 @router.post("/", response_model=SearchDTO)
 async def evaluate(request_body: SearchRequest):
-    response = process_search(request_body.companyName)
+    response = process_search(request_body.company_name)
     return response

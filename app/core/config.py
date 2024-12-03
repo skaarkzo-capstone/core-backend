@@ -1,3 +1,4 @@
+from httpx import Timeout
 from pydantic_settings import BaseSettings
 
 
@@ -7,6 +8,8 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api/main"
 
     SCRAPER_BASE_URL: str = "http://localhost:8001"
+
+    MAX_TIMEOUT: Timeout = Timeout(120)
 
     MONGO_USER: str = "localhost-root"
     MONGO_PASSWORD: str = "localhost-password"
