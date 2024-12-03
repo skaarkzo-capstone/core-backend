@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api/main"
 
     SCRAPER_BASE_URL: str = "http://localhost:8001"
+    LLM_BASE_URL: str = "https://05a9-70-27-123-150.ngrok-free.app"
 
     # TODO: Add a non-None timeout when data scraper handles ending process on no response received.
     MAX_TIMEOUT: Timeout = Timeout(None)
