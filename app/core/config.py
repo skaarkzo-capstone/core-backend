@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     SCRAPER_BASE_URL: str = "http://localhost:8001"
 
     # TODO: Add a non-None timeout when data scraper handles ending process on no response received.
+    # Max timeout before endpoint returns a 500 internal service error for timing out.
     MAX_TIMEOUT: Timeout = Timeout(None)
 
     MONGO_USER: str = "localhost-root"
