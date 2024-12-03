@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
 
 from app.service.company_service import CompanyService
 from app.service.scraper_service import ScraperService
@@ -22,7 +21,7 @@ async def get_company_scraped_data(search_request: SearchRequest):
 
     # if not company:
     #     raise HTTPException(
-    #         status_code=404, detail={"error": f"Company '{search_request.companyName}' not found."}
+    #         status_code=404, detail={"error": f"Company '{search_request.company_name}' not found."}
     #     )
 
     try:
