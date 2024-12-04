@@ -2,16 +2,16 @@ import httpx
 from fastapi import HTTPException
 
 from app.model.request.search_request import SearchRequest
-from app.core.config import settings
+from app.core.config import config
 
 
 class ScraperService:
 
     @staticmethod
     async def get_company_scraped_data(search_request: SearchRequest):
-        url = f"{settings.SCRAPER_BASE_URL}/api/scraper/company/"
+        url = config.data_scraper_service.SCRAPE_COMPANY
 
-        async with httpx.AsyncClient(timeout=settings.MAX_TIMEOUT) as client:
+        async with httpx.AsyncClient(timeout=config.MAX_TIMEOUT) as client:
             try:
                 response = await client.post(url, json=search_request.dict())
                 response.raise_for_status()

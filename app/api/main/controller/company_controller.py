@@ -8,8 +8,8 @@ from app.model.request.search_request import SearchRequest
 router = APIRouter()
 
 
-@router.get("/companies", response_model=list[CompanyDTO])
-async def get_all_companies():
+@router.get("/evaluated-companies", response_model=list[CompanyDTO])
+async def get_all_evaluated_companies():
     return await CompanyService.get_all_evaluated_companies()
 
 
