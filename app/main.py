@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.core.config import settings
+from app.core.config import config
 from app.api.main import api_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,7 +8,7 @@ from app.temp_data_seeding import seed_companies
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title=settings.APP_NAME, version=settings.VERSION)
+    app = FastAPI(title=config.APP_NAME, version=config.VERSION)
 
     app.add_middleware(
         CORSMiddleware,
@@ -18,7 +18,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(api_router, prefix=settings.API_PREFIX)
+    app.include_router(api_router, prefix=config.API_PREFIX)
 
     @app.on_event("startup")
     async def startup_event():

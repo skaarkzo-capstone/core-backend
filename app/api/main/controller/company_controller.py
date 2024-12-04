@@ -9,13 +9,14 @@ from app.model.request.search_request import SearchRequest
 router = APIRouter()
 
 
-@router.get("/companies", response_model=list[EvaluatedCompanyDTO])
-async def get_all_companies():
+@router.get("/evaluated-companies", response_model=list[CompanyDTO])
+async def get_all_evaluated_companies():
     return await CompanyService.get_all_evaluated_companies()
 
 
 @router.post("/company")
 async def get_company_scraped_data(search_request: SearchRequest):
+
     # TODO: Uncomment when companies are added to DB.
     # company = await CompanyService.get_company(search_request.companyName)
 
