@@ -1,9 +1,9 @@
 import time
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.core.config import settings
+from app.core.config import config
 
-client = AsyncIOMotorClient(settings.database_url)
-database = client[settings.MONGO_DB]
+client = AsyncIOMotorClient(config.database_url)
+database = client[config.MONGO_DB]
 
 MAX_RETRIES = 3
 RETRY_INTERVAL = 3

@@ -1,12 +1,11 @@
+from httpx import Timeout
 from pydantic_settings import BaseSettings
 
 
-class Settings(BaseSettings):
+class Configuration(BaseSettings):
     APP_NAME: str = "SustAIn Core Backend"
     VERSION: str = "1.0.0"
     API_PREFIX: str = "/api/main"
-
-    SCRAPER_BASE_URL: str = "http://localhost:8001"
 
     MONGO_USER: str = "localhost-root"
     MONGO_PASSWORD: str = "localhost-password"
@@ -19,5 +18,16 @@ class Settings(BaseSettings):
         return (f"mongodb://{self.MONGO_USER}:{self.MONGO_PASSWORD}@"
                 f"{self.MONGO_HOST}:{self.MONGO_PORT}/{self.MONGO_DB}?authSource=admin")
 
+    # TODO: Add a non-None timeout when data scraper handles ending process on no response received.
+    # Max timeout before endpoint returns a 500 internal service error for timing out.
+    MAX_TIMEOUT: Timeout = Timeout(None)
 
-settings = Settings()
+    class DataScraperServiceConfig:
+        SCRAPE_COMPANY: str = "http://localhost:8001/api/scraper/company"  # POST
+
+    @property
+    def data_scraper_service(self):
+        return self.DataScraperServiceConfig()
+
+
+config = Configuration()

@@ -1,4 +1,7 @@
 from pydantic import BaseModel
 
+
 class SearchRequest(BaseModel):
-    companyName: str
+    company_name: str
+    website: bool
+    sedar: bool
