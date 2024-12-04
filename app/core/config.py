@@ -2,7 +2,7 @@ from httpx import Timeout
 from pydantic_settings import BaseSettings
 
 
-class Config(BaseSettings):
+class Configuration(BaseSettings):
     APP_NAME: str = "SustAIn Core Backend"
     VERSION: str = "1.0.0"
     API_PREFIX: str = "/api/main"
@@ -30,4 +30,4 @@ class Config(BaseSettings):
         return self.DataScraperServiceConfig()
 
 
-config = Config()
+config = Configuration()
