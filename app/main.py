@@ -4,7 +4,7 @@ from app.api.main import api_router
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db import check_db_connection
-from app.temp_data_seeding import seed_companies
+from app.temp_company_deleting import delete_companies
 
 
 def create_app() -> FastAPI:
@@ -23,7 +23,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         await check_db_connection()
-        await seed_companies()
+        await delete_companies()
 
     return app
 

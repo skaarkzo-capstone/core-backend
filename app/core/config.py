@@ -29,5 +29,13 @@ class Configuration(BaseSettings):
     def data_scraper_service(self):
         return self.DataScraperServiceConfig()
 
+    class LLMServiceConfig:
+        LLM_BASE_URL: str = "https://c7e4-70-27-123-150.ngrok-free.app"
+        EVALUATE_COMPANY: str = f"{LLM_BASE_URL}/api/llm/chat"
+
+    @property
+    def llm_service(self):
+        return self.LLMServiceConfig()
+
 
 config = Configuration()
