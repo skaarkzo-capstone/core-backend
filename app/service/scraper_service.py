@@ -15,7 +15,10 @@ class ScraperService:
             try:
                 response = await client.post(url, json=search_request.dict())
                 response.raise_for_status()
-                return response.json()
+
+                non_pdf_scraped_data = ScraperService.traverse_and_remove_pdfs(response.json())
+                return non_pdf_scraped_data
+                # return response.json()
 
             except httpx.HTTPStatusError as e:
 
@@ -37,4 +40,19 @@ class ScraperService:
                 raise HTTPException(status_code=500,
                                     detail="An unexpected error occurred trying to reach the Data Scraper Service. "
                                            "Please try again later.")
+
+    # TODO: Remove once data normalization is complete
+    @staticmethod
+    def traverse_and_remove_pdfs(scraped_data: dict):
+        if isinstance(scraped_data, dict):
+            for key, value in scraped_data.items():
+                if key == "pdfs":
+                    scraped_data[key] = []
+                else:
+                    ScraperService.traverse_and_remove_pdfs(value)
+        elif isinstance(scraped_data, list):
+            for item in scraped_data:
+                ScraperService.traverse_and_remove_pdfs(item)
+
+        return scraped_data
 
