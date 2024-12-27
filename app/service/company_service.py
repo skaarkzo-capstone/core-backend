@@ -22,9 +22,19 @@ class CompanyService:
 
         return companies
 
+
     @staticmethod
-    async def get_company(company_name: str) -> dict:
-        companies_collection = database["companies"]
-        company = await companies_collection.find_one({"name": company_name})
+    async def get_evaluated_company(company_name: str) -> dict:
+        evaluated_companies_collection = database["evaluated_companies"]
+        company = await evaluated_companies_collection.find_one({"name": company_name})
 
         return company
+
+
+    @staticmethod
+    async def delete_company(company_name: str):
+        evaluated_companies_collection = database["evaluated_companies"]
+        try:
+            await evaluated_companies_collection.delete_one({"name": company_name})
+        except Exception as e:
+            raise Exception(f"Error deleting company: {e}")
