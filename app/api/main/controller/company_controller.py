@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, HTTPException
 
 from app.service.company_service import CompanyService
@@ -73,3 +74,36 @@ async def delete_company(request: CompanyRequest):
         raise HTTPException(
             status_code=500, detail=f"Error deleting company: {str(e)}"
         )
+
+
+@router.delete("/delete-companies")
+async def delete_companies(request: List[CompanyRequest]):
+    failed_deletions = []
+    success_deletions = []
+
+    for company_request in request:
+        try:
+            company = await CompanyService.get_evaluated_company(company_request.company_name)
+            if not company:
+                failed_deletions.append(f"Company '{company_request.company_name}' not found.")
+                continue
+
+            await CompanyService.delete_company(company_request.company_name)
+            success_deletions.append(company_request.company_name)
+        except Exception as e:
+            failed_deletions.append(f"Error deleting '{company_request.company_name}': {str(e)}")
+
+    if failed_deletions:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "Some companies could not be deleted.",
+                "success": success_deletions,
+                "failed": failed_deletions,
+            },
+        )
+
+    return {
+        "message": "All companies deleted successfully.",
+        "success": success_deletions,
+    }

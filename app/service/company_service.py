@@ -1,3 +1,4 @@
+from typing import List
 from app.model.dto.company_evaluated_dto import EvaluatedCompanyDTO
 from app.db import database
 
@@ -38,3 +39,12 @@ class CompanyService:
             await evaluated_companies_collection.delete_one({"name": company_name})
         except Exception as e:
             raise Exception(f"Error deleting company: {e}")
+
+
+    @staticmethod
+    async def delete_companies(company_names: List[str]):
+        evaluated_companies_collection = database["evaluated_companies"]
+        try:
+            await evaluated_companies_collection.delete_many({"name": {"$in": company_names}})
+        except Exception as e:
+            raise Exception(f"Error deleting companies: {e}")
