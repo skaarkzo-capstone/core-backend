@@ -33,15 +33,6 @@ class CompanyService:
 
 
     @staticmethod
-    async def delete_company(company_name: str):
-        evaluated_companies_collection = database["evaluated_companies"]
-        try:
-            await evaluated_companies_collection.delete_one({"name": company_name})
-        except Exception as e:
-            raise Exception(f"Error deleting company: {e}")
-
-
-    @staticmethod
     async def delete_companies(company_names: List[str]):
         evaluated_companies_collection = database["evaluated_companies"]
         try:

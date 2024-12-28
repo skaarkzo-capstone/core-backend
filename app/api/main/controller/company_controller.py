@@ -56,24 +56,6 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
         raise HTTPException(
             status_code=500, detail=str(e)
         )
-    
-    
-@router.delete("/delete-company")
-async def delete_company(request: CompanyRequest):
-    company = await CompanyService.get_evaluated_company(request.company_name)
-
-    if not company:
-        raise HTTPException(
-            status_code=404, detail=f"Company '{request.company_name}' not found."
-        )
-
-    try:
-        await CompanyService.delete_company(request.company_name)
-        return {"message": "Company deleted successfully"}
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error deleting company: {str(e)}"
-        )
 
 
 @router.delete("/delete-companies")
