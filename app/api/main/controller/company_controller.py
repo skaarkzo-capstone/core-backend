@@ -60,32 +60,44 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
 
 @router.delete("/delete-companies")
 async def delete_companies(request: List[CompanyRequest]):
+    company_names = [company_request.company_name for company_request in request]
     failed_deletions = []
     success_deletions = []
 
-    for company_request in request:
-        try:
-            company = await CompanyService.get_evaluated_company(company_request.company_name)
+    try:
+        # Fetch all companies to validate existence
+        for company_name in company_names:
+            company = await CompanyService.get_evaluated_company(company_name)
             if not company:
-                failed_deletions.append(f"Company '{company_request.company_name}' not found.")
+                failed_deletions.append(f"Company '{company_name}' not found.")
                 continue
+            success_deletions.append(company_name)
 
-            await CompanyService.delete_company(company_request.company_name)
-            success_deletions.append(company_request.company_name)
-        except Exception as e:
-            failed_deletions.append(f"Error deleting '{company_request.company_name}': {str(e)}")
+        # If there are valid companies to delete, pass them to the service
+        if success_deletions:
+            await CompanyService.delete_companies(success_deletions)
 
-    if failed_deletions:
+        # Message set dynamically
+        if len(success_deletions) == 1:
+            message = f"{success_deletions[0]} was deleted."
+        elif len(success_deletions) > 1:
+            message = f"{', '.join(success_deletions[:-1])}, and {success_deletions[-1]} were deleted."
+        else:
+            message = "No companies were deleted."
+
+        # Return response with successful and failed deletions
+        return {
+            "message": message,
+            "success": success_deletions,
+            "failed": failed_deletions,
+        }
+
+    except Exception as e:
         raise HTTPException(
             status_code=404,
             detail={
-                "message": "Some companies could not be deleted.",
+                "message": f"An error occurred while deleting companies: {str(e)}",
                 "success": success_deletions,
                 "failed": failed_deletions,
             },
         )
-
-    return {
-        "message": "All companies deleted successfully.",
-        "success": success_deletions,
-    }
