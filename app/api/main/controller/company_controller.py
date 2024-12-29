@@ -61,7 +61,7 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
 
 
 @router.put("/company/compliance")
-async def toggle_compliance(request: SearchRequest):
+async def toggle_compliance(request: CompanyRequest):
     evaluated_companies_collection = database["evaluated_companies"]
 
     # Find the company
