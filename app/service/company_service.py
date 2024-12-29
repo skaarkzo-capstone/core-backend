@@ -39,12 +39,17 @@ class CompanyService:
         new_compliance_status = not current_compliance
 
         # Update the database
-        await evaluated_companies_collection.update_one(
+        result = await evaluated_companies_collection.update_one(
             {"name": company_name},
             {"$set": {"compliance": new_compliance_status}}
         )
 
-        # Fetch the updated company
-        updated_company = await evaluated_companies_collection.find_one({"name": company_name})
-        updated_company["_id"] = str(updated_company["_id"])
-        return updated_company
+        # Check if the update was successful
+        if result.modified_count == 1:
+            updated_company = await evaluated_companies_collection.find_one({"name": company_name})
+            if updated_company and updated_company.get("compliance") == new_compliance_status:
+                return True
+
+        # Return False if the update was not successful
+        return False
+
