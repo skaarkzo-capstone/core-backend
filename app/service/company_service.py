@@ -1,6 +1,7 @@
 from typing import List
 from app.model.dto.company_evaluated_dto import EvaluatedCompanyDTO
 from app.db import database
+from bson import ObjectId
 
 
 class CompanyService:
@@ -56,9 +57,20 @@ class CompanyService:
 
 
     @staticmethod
-    async def delete_companies(company_names: List[str]):
+    async def delete_companies(company_ids: List[ObjectId]):
         evaluated_companies_collection = database["evaluated_companies"]
         try:
-            await evaluated_companies_collection.delete_many({"name": {"$in": company_names}})
+            await evaluated_companies_collection.delete_many({"_id": {"$in": company_ids}})
         except Exception as e:
             raise Exception(f"Error deleting companies: {e}")
+
+    @staticmethod
+    async def get_evaluated_company_by_id(company_id: ObjectId):
+        """
+        Fetch a company document by its MongoDB ObjectId.
+        """
+        evaluated_companies_collection = database["evaluated_companies"]
+        try:
+            return await evaluated_companies_collection.find_one({"_id": company_id})
+        except Exception as e:
+            raise Exception(f"Error fetching company with ID {company_id}: {e}")

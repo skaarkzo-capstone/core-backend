@@ -8,7 +8,7 @@ class ProductDTO(BaseModel):
 
 
 class CompanyScrapedDTO(BaseModel):
-    id: int
+    id: str
     name: str
     industry: str
     location: str
