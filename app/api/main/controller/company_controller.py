@@ -66,20 +66,22 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
 async def toggle_compliance(request: CompanyRequest):
     evaluated_companies_collection = database["evaluated_companies"]
 
-    # Find the company
-    company = await evaluated_companies_collection.find_one({"name": request.company_name})
-    if not company:
-        raise HTTPException(
-            status_code=404, detail=f"Company '{request.company_name}' not found."
-        )
-
-    # Get the current compliance value
-    current_compliance = company.get("compliance", False)
-
+    # Find the company by ID
     try:
-        await CompanyService.toggle_compliance(request.company_name, current_compliance)
+        company = await evaluated_companies_collection.find_one({"_id": ObjectId(request.id)})
+        if not company:
+            raise HTTPException(
+                status_code=404, detail=f"Company with ID '{request.id}' not found."
+            )
+
+        # Get the current compliance value
+        current_compliance = company.get("compliance", False)
+
+        # Toggle the compliance value
+        await CompanyService.toggle_compliance(request.id, current_compliance)
+
         return {
-            "message": f"Compliance for '{request.company_name}' updated successfully.",
+            "message": f"Compliance for company '{company['name']}' with ID '{request.id}' updated successfully.",
         }
     except Exception as e:
         raise HTTPException(
