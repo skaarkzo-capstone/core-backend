@@ -59,7 +59,6 @@ async def full_evaluation(search_request: SearchRequest) -> EvaluatedCompanyDTO:
 
 @router.put("/company/compliance")
 async def toggle_compliance(request: SearchRequest):
-    print(f"Received request to toggle compliance for: {request.company_name}")
     try:
         updated_company = await CompanyService.toggle_compliance(request.company_name)
         if not updated_company:
