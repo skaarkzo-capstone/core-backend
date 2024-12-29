@@ -73,10 +73,9 @@ async def toggle_compliance(request: SearchRequest):
     current_compliance = company.get("compliance", False)
 
     try:
-        updated_company = await CompanyService.toggle_compliance(request.company_name, current_compliance)
+        await CompanyService.toggle_compliance(request.company_name, current_compliance)
         return {
             "message": f"Compliance for '{request.company_name}' updated successfully.",
-            "updated_company": updated_company
         }
     except Exception as e:
         raise HTTPException(
