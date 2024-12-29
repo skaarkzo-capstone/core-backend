@@ -63,29 +63,56 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
 
 
 @router.put("/company/compliance")
-async def toggle_compliance(request: CompanyRequest):
+async def toggle_compliance(request: List[CompanyRequest]):
     evaluated_companies_collection = database["evaluated_companies"]
+    failed_toggles = []
+    success_toggles = []
 
-    # Find the company by ID
     try:
-        company = await evaluated_companies_collection.find_one({"_id": ObjectId(request.id)})
-        if not company:
-            raise HTTPException(
-                status_code=404, detail=f"Company with ID '{request.id}' not found."
+        for company_request in request:
+            try:
+                # Find the company by ID
+                company = await evaluated_companies_collection.find_one({"_id": ObjectId(company_request.id)})
+                if not company:
+                    failed_toggles.append({"id": company_request.id, "reason": "Company not found"})
+                    continue
+
+                # Get the current compliance value
+                current_compliance = company.get("compliance", False)
+
+                # Toggle the compliance value
+                new_compliance_status = await CompanyService.toggle_compliance(company_request.id, current_compliance)
+                success_toggles.append({
+                    "id": company_request.id,
+                    "name": company["name"],
+                    "compliance": new_compliance_status
+                })
+            except Exception as e:
+                failed_toggles.append({"id": company_request.id, "reason": str(e)})
+
+        # Construct a response message
+        if len(success_toggles) == 1:
+            message = f"Compliance for company '{success_toggles[0]['name']}' with ID '{success_toggles[0]['id']}' updated successfully."
+        elif len(success_toggles) > 1:
+            companies_list = ", ".join(
+                [f"{company['name']} with ID {company['id']}" for company in success_toggles[:-1]]
             )
+            last_company = f"{success_toggles[-1]['name']} with ID {success_toggles[-1]['id']}"
+            message = f"Compliance for companies {companies_list}, and {last_company} updated successfully."
+        else:
+            message = "No companies were updated."
 
-        # Get the current compliance value
-        current_compliance = company.get("compliance", False)
-
-        # Toggle the compliance value
-        await CompanyService.toggle_compliance(request.id, current_compliance)
-
+        # Return the response
         return {
-            "message": f"Compliance for company '{company['name']}' with ID '{request.id}' updated successfully.",
+            "message": message,
+            "success": success_toggles,
+            "failed": failed_toggles
         }
+
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=str(e)
+            status_code=500,
+            detail={"message": f"An error occurred: {str(e)}"}
         )
 
 

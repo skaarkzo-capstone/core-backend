@@ -50,10 +50,9 @@ class CompanyService:
         if result.modified_count == 1:
             updated_company = await evaluated_companies_collection.find_one({"_id": ObjectId(company_id)})
             if updated_company and updated_company.get("compliance") == new_compliance_status:
-                return True
+                return new_compliance_status
 
-        # Return False if the update was not successful
-        return False
+        raise Exception("Failed to toggle compliance")
 
 
     @staticmethod
