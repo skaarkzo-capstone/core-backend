@@ -32,16 +32,11 @@ class CompanyService:
 
 
     @staticmethod
-    async def toggle_compliance(company_name: str) -> dict:
+    async def toggle_compliance(company_name: str, current_compliance: bool) -> dict:
         evaluated_companies_collection = database["evaluated_companies"]
 
-        # Find the company
-        company = await evaluated_companies_collection.find_one({"name": company_name})
-        if not company:
-            return None
-
         # Toggle the compliance value
-        new_compliance_status = not company.get("compliance", False)
+        new_compliance_status = not current_compliance
 
         # Update the database
         await evaluated_companies_collection.update_one(

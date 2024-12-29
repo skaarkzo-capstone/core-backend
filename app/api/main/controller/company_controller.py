@@ -5,6 +5,7 @@ from app.service.scraper_service import ScraperService
 from app.service.llm_service import LLMService
 from app.model.dto.company_evaluated_dto import EvaluatedCompanyDTO
 from app.model.request.search_request import SearchRequest
+from app.db import database
 
 router = APIRouter()
 
@@ -59,13 +60,24 @@ async def full_evaluation(search_request: SearchRequest) -> EvaluatedCompanyDTO:
 
 @router.put("/company/compliance")
 async def toggle_compliance(request: SearchRequest):
+    evaluated_companies_collection = database["evaluated_companies"]
+
+    # Find the company
+    company = await evaluated_companies_collection.find_one({"name": request.company_name})
+    if not company:
+        raise HTTPException(
+            status_code=404, detail=f"Company '{request.company_name}' not found."
+        )
+
+    # Get the current compliance value
+    current_compliance = company.get("compliance", False)
+
     try:
-        updated_company = await CompanyService.toggle_compliance(request.company_name)
-        if not updated_company:
-            raise HTTPException(
-                status_code=404, detail=f"Company '{request.company_name}' not found."
-            )
-        return {"message": f"Compliance for '{request.company_name}' updated successfully.", "updated_company": updated_company}
+        updated_company = await CompanyService.toggle_compliance(request.company_name, current_compliance)
+        return {
+            "message": f"Compliance for '{request.company_name}' updated successfully.",
+            "updated_company": updated_company
+        }
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=str(e)
