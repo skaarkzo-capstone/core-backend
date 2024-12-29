@@ -57,7 +57,7 @@ async def full_evaluation(search_request: SearchRequest) -> EvaluatedCompanyDTO:
         )
     
 
-@router.patch("/company/compliance")
+@router.put("/company/compliance")
 async def toggle_compliance(request: SearchRequest):
     print(f"Received request to toggle compliance for: {request.company_name}")
     try:
