@@ -1,5 +1,10 @@
 from httpx import Timeout
 from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 class Configuration(BaseSettings):
@@ -30,7 +35,7 @@ class Configuration(BaseSettings):
         return self.DataScraperServiceConfig()
 
     class LLMServiceConfig:
-        LLM_BASE_URL: str = "https://da6f-67-71-45-138.ngrok-free.app"
+        LLM_BASE_URL: str = os.getenv("LLM_BASE_URL")
         EVALUATE_COMPANY: str = f"{LLM_BASE_URL}/api/llm/chat"
 
     @property

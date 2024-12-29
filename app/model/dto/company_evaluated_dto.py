@@ -13,3 +13,4 @@ class EvaluatedCompanyDTO(BaseModel):
     date: datetime
     score: int
     reasoning: ReasoningDTO
+    compliance: bool

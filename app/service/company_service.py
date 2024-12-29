@@ -33,6 +33,29 @@ class CompanyService:
 
 
     @staticmethod
+    async def toggle_compliance(company_name: str, current_compliance: bool) -> bool:
+        evaluated_companies_collection = database["evaluated_companies"]
+
+        # Toggle the compliance value
+        new_compliance_status = not current_compliance
+
+        # Update the database
+        result = await evaluated_companies_collection.update_one(
+            {"name": company_name},
+            {"$set": {"compliance": new_compliance_status}}
+        )
+
+        # Check if the update was successful
+        if result.modified_count == 1:
+            updated_company = await evaluated_companies_collection.find_one({"name": company_name})
+            if updated_company and updated_company.get("compliance") == new_compliance_status:
+                return True
+
+        # Return False if the update was not successful
+        return False
+
+
+    @staticmethod
     async def delete_companies(company_names: List[str]):
         evaluated_companies_collection = database["evaluated_companies"]
         try:
