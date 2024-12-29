@@ -30,7 +30,7 @@ class Configuration(BaseSettings):
         return self.DataScraperServiceConfig()
 
     class LLMServiceConfig:
-        LLM_BASE_URL: str = "https://c7e4-70-27-123-150.ngrok-free.app"
+        LLM_BASE_URL: str = "https://1551-67-71-45-138.ngrok-free.app"
         EVALUATE_COMPANY: str = f"{LLM_BASE_URL}/api/llm/chat"
 
     @property

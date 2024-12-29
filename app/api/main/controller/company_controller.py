@@ -55,3 +55,19 @@ async def full_evaluation(search_request: SearchRequest) -> EvaluatedCompanyDTO:
         raise HTTPException(
             status_code=500, detail=str(e)
         )
+    
+
+@router.patch("/company/compliance")
+async def toggle_compliance(request: SearchRequest):
+    print(f"Received request to toggle compliance for: {request.company_name}")
+    try:
+        updated_company = await CompanyService.toggle_compliance(request.company_name)
+        if not updated_company:
+            raise HTTPException(
+                status_code=404, detail=f"Company '{request.company_name}' not found."
+            )
+        return {"message": f"Compliance for '{request.company_name}' updated successfully.", "updated_company": updated_company}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=str(e)
+        )
