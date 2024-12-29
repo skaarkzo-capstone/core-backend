@@ -32,7 +32,7 @@ class CompanyService:
 
 
     @staticmethod
-    async def toggle_compliance(company_name: str, current_compliance: bool) -> dict:
+    async def toggle_compliance(company_name: str, current_compliance: bool) -> bool:
         evaluated_companies_collection = database["evaluated_companies"]
 
         # Toggle the compliance value
