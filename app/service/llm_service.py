@@ -19,12 +19,8 @@ class LLMService:
                 response = await client.post(url, json=scraped_data)
                 response.raise_for_status()
 
-                evaluated_data = response.json()
-                
-                evaluated_data['compliance'] = evaluated_data['score'] >= 5
-
-                await evaluated_companies_collection.insert_one(evaluated_data)
-                return EvaluatedCompanyDTO(**evaluated_data)
+                await evaluated_companies_collection.insert_one(response.json())
+                return EvaluatedCompanyDTO(**response.json())
 
             except httpx.HTTPStatusError as e:
 
