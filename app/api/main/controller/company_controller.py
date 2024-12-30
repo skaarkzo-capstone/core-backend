@@ -161,7 +161,7 @@ async def delete_companies(request: List[CompanyRequest]):
 
     except Exception as e:
         raise HTTPException(
-            status_code=404,
+            status_code=500,
             detail={
                 "message": f"An error occurred while deleting companies: {str(e)}",
                 "success": [
