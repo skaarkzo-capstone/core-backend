@@ -65,5 +65,13 @@ class CompanyService:
         evaluated_companies_collection = database["evaluated_companies"]
         try:
             return await evaluated_companies_collection.find_one({"_id": company_id})
+        except httpx.HTTPStatusError as e:
+        
+            if e.response.status_code == 404:
+                    raise HTTPException(status_code=e.response.status_code,
+                                        detail=f"Unable to find company with ID {company_id}")
+                                        
         except Exception as e:
-            raise Exception(f"Error fetching company with ID {company_id}: {e}")
+
+                 raise HTTPException(status_code=500,
+                                     detail=f"Error fetching company with ID {company_id}: {e}")
