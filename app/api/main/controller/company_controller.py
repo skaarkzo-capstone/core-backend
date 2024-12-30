@@ -112,7 +112,7 @@ async def toggle_compliance(request: List[CompanyRequest]):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail={"message": f"An error occurred: {str(e)}"}
+            detail=f"An error occurred: {str(e)}"
         )
 
 
