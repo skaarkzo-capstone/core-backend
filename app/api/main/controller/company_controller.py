@@ -134,7 +134,8 @@ async def delete_companies(request: List[CompanyRequest]):
 
         # If there are valid companies to delete, pass them to the service
         if success_deletions:
-            await CompanyService.delete_companies(company_ids)
+            valid_company_ids = [ObjectId(company["id"]) for company in success_deletions]
+            await CompanyService.delete_companies(valid_company_ids)
 
         # Message set dynamically
         if len(success_deletions) == 1:
