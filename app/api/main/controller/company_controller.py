@@ -129,8 +129,8 @@ async def delete_companies(request: List[CompanyRequest]):
             if not company:
                 failed_deletions.append(f"Company with ID '{company_id}' not found.")
                 continue
-            # Append a tuple of company name and ID
-            success_deletions.append((company["name"], str(company_id)))
+            # Append a JSON object
+            success_deletions.append({"name": company["name"], "id": str(company_id)})
 
         # If there are valid companies to delete, pass them to the service
         if success_deletions:
@@ -138,14 +138,12 @@ async def delete_companies(request: List[CompanyRequest]):
 
         # Message set dynamically
         if len(success_deletions) == 1:
-            message = (
-                f"Company {success_deletions[0][0]} with ID {success_deletions[0][1]} was deleted."
-            )
+            message = f"Company {success_deletions[0]['name']} with ID {success_deletions[0]['id']} was deleted."
         elif len(success_deletions) > 1:
             companies_list = ", ".join(
-                [f"{name} with ID {cid}" for name, cid in success_deletions[:-1]]
+                [f"{company['name']} with ID {company['id']}" for company in success_deletions[:-1]]
             )
-            last_company = f"{success_deletions[-1][0]} with ID {success_deletions[-1][1]}"
+            last_company = f"{success_deletions[-1]['name']} with ID {success_deletions[-1]['id']}"
             message = f"Companies {companies_list}, and {last_company} were deleted."
         else:
             message = "No companies were deleted."
@@ -153,9 +151,7 @@ async def delete_companies(request: List[CompanyRequest]):
         # Return response with successful and failed deletions
         return {
             "message": message,
-            "success": [
-                {"name": name, "id": cid} for name, cid in success_deletions
-            ],
+            "success": success_deletions,
             "failed": failed_deletions,
         }
 
@@ -164,9 +160,7 @@ async def delete_companies(request: List[CompanyRequest]):
             status_code=500,
             detail={
                 "message": f"An error occurred while deleting companies: {str(e)}",
-                "success": [
-                    {"name": name, "id": cid} for name, cid in success_deletions
-                ],
+                "success": success_deletions,
                 "failed": failed_deletions,
             },
         )
