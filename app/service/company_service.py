@@ -2,6 +2,7 @@ from typing import List
 from app.model.dto.company_evaluated_dto import EvaluatedCompanyDTO
 from app.db import database
 from bson import ObjectId
+from fastapi import HTTPException
 
 
 class CompanyService:
