@@ -61,7 +61,7 @@ class CompanyService:
         try:
             await evaluated_companies_collection.delete_many({"_id": {"$in": company_ids}})
         except Exception as e:
-            raise Exception(f"Error deleting companies: {e}")
+            raise HTTPException(status_code=500, detail=f"Error deleting companies: {e}")
 
     @staticmethod
     async def get_evaluated_company_by_id(company_id: ObjectId):
