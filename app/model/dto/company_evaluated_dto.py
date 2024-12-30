@@ -9,7 +9,6 @@ class ReasoningDTO(BaseModel):
 
 
 class EvaluatedCompanyDTO(BaseModel):
-    id: str
     name: str
     date: datetime
     score: int
