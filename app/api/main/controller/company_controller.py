@@ -125,7 +125,7 @@ async def delete_companies(request: List[CompanyRequest]):
     try:
         # Fetch all companies to validate existence
         for company_id in company_ids:
-            company = await CompanyService.get_evaluated_company_by_id(company_id)
+            company = await CompanyService.get_evaluated_company(company_id)
             if not company:
                 failed_deletions.append(f"Company with ID '{company_id}' not found.")
                 continue

@@ -27,14 +27,6 @@ class CompanyService:
 
 
     @staticmethod
-    async def get_evaluated_company(company_name: str) -> dict:
-        evaluated_companies_collection = database["evaluated_companies"]
-        company = await evaluated_companies_collection.find_one({"name": company_name})
-
-        return company
-
-
-    @staticmethod
     async def toggle_compliance(company_id: str, current_compliance: bool) -> bool:
         evaluated_companies_collection = database["evaluated_companies"]
 
@@ -64,8 +56,9 @@ class CompanyService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting companies: {e}")
 
+
     @staticmethod
-    async def get_evaluated_company_by_id(company_id: ObjectId):
+    async def get_evaluated_company(company_id: ObjectId):
         """
         Fetch a company document by its MongoDB ObjectId.
         """
