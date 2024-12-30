@@ -3,10 +3,12 @@ from app.model.dto.company_evaluated_dto import EvaluatedCompanyDTO
 from app.db import database
 from bson import ObjectId
 from fastapi import HTTPException
+import httpx
 
 
 class CompanyService:
 
+    # Get all the evaluated companies
     @staticmethod
     async def get_all_evaluated_companies() -> list[EvaluatedCompanyDTO]:
         # Get all the documents (rows) from the collection
@@ -25,7 +27,7 @@ class CompanyService:
 
         return companies
 
-
+    # Toggle the compliance of the companies
     @staticmethod
     async def toggle_compliance(company_id: str, current_compliance: bool) -> bool:
         evaluated_companies_collection = database["evaluated_companies"]
@@ -47,7 +49,7 @@ class CompanyService:
 
         raise HTTPException(status_code=500, detail="Failed to toggle compliance")
 
-
+    # Delete the companies
     @staticmethod
     async def delete_companies(company_ids: List[ObjectId]):
         evaluated_companies_collection = database["evaluated_companies"]
@@ -56,12 +58,9 @@ class CompanyService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting companies: {e}")
 
-
+    # Fetch a company document by its MongoDB ObjectId
     @staticmethod
     async def get_evaluated_company(company_id: ObjectId):
-        """
-        Fetch a company document by its MongoDB ObjectId.
-        """
         evaluated_companies_collection = database["evaluated_companies"]
         try:
             return await evaluated_companies_collection.find_one({"_id": company_id})
@@ -72,6 +71,5 @@ class CompanyService:
                                         detail=f"Unable to find company with ID {company_id}")
                                         
         except Exception as e:
-
                  raise HTTPException(status_code=500,
                                      detail=f"Error fetching company with ID {company_id}: {e}")
