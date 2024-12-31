@@ -92,21 +92,7 @@ async def toggle_compliance(request: List[CompanyRequest]):
             except Exception as e:
                 failed_toggles.append({"id": str(company_id), "reason": str(e)})
 
-        # Construct a response message
-        if len(success_toggles) == 1:
-            message = f"Compliance for company '{success_toggles[0]['name']}' with ID '{success_toggles[0]['id']}' updated successfully."
-        elif len(success_toggles) > 1:
-            companies_list = ", ".join(
-                [f"{company['name']} with ID {company['id']}" for company in success_toggles[:-1]]
-            )
-            last_company = f"{success_toggles[-1]['name']} with ID {success_toggles[-1]['id']}"
-            message = f"Compliance for companies {companies_list}, and {last_company} updated successfully."
-        else:
-            message = "No companies were updated."
-
-        # Return the response
         return {
-            "message": message,
             "success": success_toggles,
             "failed": failed_toggles
         }
@@ -143,23 +129,9 @@ async def delete_companies(request: List[CompanyRequest]):
             valid_company_ids = [ObjectId(company["id"]) for company in success_deletions]
             await CompanyService.delete_companies(valid_company_ids)
 
-        # Message set dynamically
-        if len(success_deletions) == 1:
-            message = f"Company {success_deletions[0]['name']} with ID {success_deletions[0]['id']} was deleted."
-        elif len(success_deletions) > 1:
-            companies_list = ", ".join(
-                [f"{company['name']} with ID {company['id']}" for company in success_deletions[:-1]]
-            )
-            last_company = f"{success_deletions[-1]['name']} with ID {success_deletions[-1]['id']}"
-            message = f"Companies {companies_list}, and {last_company} were deleted."
-        else:
-            message = "No companies were deleted."
-
-        # Return response with successful and failed deletions
         return {
-            "message": message,
             "success": success_deletions,
-            "failed": failed_deletions,
+            "failed": failed_deletions
         }
 
     except Exception as e:
