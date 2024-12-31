@@ -108,20 +108,23 @@ async def delete_companies(request: List[CompanyRequest]):
     failed_companies = []
     valid_companies = []
 
-    try:
-        for company_id in company_ids:
-            try:
-                # Fetch the company by ID
-                company = await CompanyService.get_evaluated_company(company_id)
-                if not company:
-                    failed_companies.append({"id": str(company_id), "reason": "Company not found"})
-                    continue
-                # Append a JSON object
+    for company_id in company_ids:
+        try:
+            if not ObjectId.is_valid(company_id):
+                failed_companies.append({"id": company_id, "reason": "Invalid ID: {company_id}"})
+                raise HTTPException(status_code=400, detail=f"Invalid ID: {company_id}")
+            # Fetch the company by ID
+            company = await CompanyService.get_evaluated_company(company_id)
+            if company:
                 valid_companies.append({"id": str(company_id), "name": company["name"]})
+            else:
+                failed_companies.append({"id": company_id, "reason": "Company not found"})
+                raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        except Exception as e:
+            failed_companies.append({"id": company_id, "reason": str(e)})
+            raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
-            except Exception as e:
-                failed_companies.append({"id": str(company_id), "reason": f"Error: {str(e)}"})
-
+    try:
         # If there are valid companies to delete, pass them to the service
         if valid_companies:
             valid_company_ids = [ObjectId(company["id"]) for company in valid_companies]
