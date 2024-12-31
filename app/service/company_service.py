@@ -8,6 +8,22 @@ import httpx
 
 class CompanyService:
 
+    # Fetch a company document by its MongoDB ObjectId
+    @staticmethod
+    async def get_evaluated_company(company_id: ObjectId):
+        evaluated_companies_collection = database["evaluated_companies"]
+        try:
+            return await evaluated_companies_collection.find_one({"_id": company_id})
+        except httpx.HTTPStatusError as e:
+
+            if e.response.status_code == 404:
+                raise HTTPException(status_code=e.response.status_code,
+                                    detail=f"Unable to find company with ID {company_id}")
+
+        except Exception as e:
+            raise HTTPException(status_code=500,
+                                detail=f"Error fetching company with ID {company_id}: {e}")
+
     # Get all the evaluated companies
     @staticmethod
     async def get_all_evaluated_companies() -> list[EvaluatedCompanyDTO]:
@@ -29,7 +45,7 @@ class CompanyService:
 
     # Toggle the compliance of the companies
     @staticmethod
-    async def toggle_compliance(company_id: str, current_compliance: bool) -> bool:
+    async def toggle_compliance(company_id: ObjectId, current_compliance: bool) -> bool:
         evaluated_companies_collection = database["evaluated_companies"]
 
         # Toggle the compliance value
@@ -37,13 +53,13 @@ class CompanyService:
 
         # Update the database
         result = await evaluated_companies_collection.update_one(
-            {"_id": ObjectId(company_id)},
+            {"_id": company_id},
             {"$set": {"compliance": new_compliance_status}}
         )
 
         # Check if the update was successful
         if result.modified_count == 1:
-            updated_company = await evaluated_companies_collection.find_one({"_id": ObjectId(company_id)})
+            updated_company = await evaluated_companies_collection.find_one({"_id": company_id})
             if updated_company and updated_company.get("compliance") == new_compliance_status:
                 return new_compliance_status
 
@@ -57,19 +73,3 @@ class CompanyService:
             await evaluated_companies_collection.delete_many({"_id": {"$in": company_ids}})
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting companies: {e}")
-
-    # Fetch a company document by its MongoDB ObjectId
-    @staticmethod
-    async def get_evaluated_company(company_id: ObjectId):
-        evaluated_companies_collection = database["evaluated_companies"]
-        try:
-            return await evaluated_companies_collection.find_one({"_id": company_id})
-        except httpx.HTTPStatusError as e:
-        
-            if e.response.status_code == 404:
-                    raise HTTPException(status_code=e.response.status_code,
-                                        detail=f"Unable to find company with ID {company_id}")
-                                        
-        except Exception as e:
-                 raise HTTPException(status_code=500,
-                                     detail=f"Error fetching company with ID {company_id}: {e}")
