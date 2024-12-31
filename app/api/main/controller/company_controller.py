@@ -68,15 +68,14 @@ async def toggle_compliance(request: List[CompanyRequest]):
     failed_companies = []
     valid_companies = []
 
-    try:
-        for company_id in company_ids:
-            try:
-                # Find the company by ID
-                company = await CompanyService.get_evaluated_company(company_id)
-                if not company:
-                    failed_companies.append({"id": str(company_id), "reason": "Company not found"})
-                    continue
-
+    for company_id in company_ids:
+        try:
+            if not ObjectId.is_valid(company_id):
+                failed_companies.append({"id": company_id, "reason": f"Invalid ID: {company_id}"})
+                raise HTTPException(status_code=400, detail=f"Invalid ID: {company_id}")
+            # Fetch the company by ID
+            company = await CompanyService.get_evaluated_company(company_id)
+            if company:
                 # Get the current compliance value
                 current_compliance = company.get("compliance", False)
 
@@ -87,18 +86,26 @@ async def toggle_compliance(request: List[CompanyRequest]):
                     "name": company["name"],
                     "compliance": new_compliance_status
                 })
-            except Exception as e:
-                failed_companies.append({"id": str(company_id), "reason": str(e)})
+            else:
+                failed_companies.append({"id": company_id, "reason": "Company not found"})
+                raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        except Exception as e:
+            failed_companies.append({"id": company_id, "reason": str(e)})
+            raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
+    try:
         return {
             "success": valid_companies,
             "failed": failed_companies
         }
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred: {str(e)}"
+            detail={
+                "message": f"An error occurred while toggling compliance: {str(e)}",
+                "success": valid_companies,
+                "failed": failed_companies,
+            },
         )
 
 
