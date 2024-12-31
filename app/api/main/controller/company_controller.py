@@ -68,27 +68,29 @@ async def toggle_compliance(request: List[CompanyRequest]):
     failed_toggles = []
     success_toggles = []
 
+    company_ids = [ObjectId(company_request.id) for company_request in request]
+
     try:
-        for company_request in request:
+        for company_id in company_ids:
             try:
                 # Find the company by ID
-                company = await evaluated_companies_collection.find_one({"_id": ObjectId(company_request.id)})
+                company = await CompanyService.get_evaluated_company(company_id)
                 if not company:
-                    failed_toggles.append({"id": company_request.id, "reason": "Company not found"})
+                    failed_toggles.append({"id": str(company_id), "reason": "Company not found"})
                     continue
 
                 # Get the current compliance value
                 current_compliance = company.get("compliance", False)
 
                 # Toggle the compliance value
-                new_compliance_status = await CompanyService.toggle_compliance(company_request.id, current_compliance)
+                new_compliance_status = await CompanyService.toggle_compliance(str(company_id), current_compliance)
                 success_toggles.append({
-                    "id": company_request.id,
+                    "id": str(company_id),
                     "name": company["name"],
                     "compliance": new_compliance_status
                 })
             except Exception as e:
-                failed_toggles.append({"id": company_request.id, "reason": str(e)})
+                failed_toggles.append({"id": str(company_id), "reason": str(e)})
 
         # Construct a response message
         if len(success_toggles) == 1:
@@ -123,14 +125,18 @@ async def delete_companies(request: List[CompanyRequest]):
     success_deletions = []
 
     try:
-        # Fetch all companies to validate existence
         for company_id in company_ids:
-            company = await CompanyService.get_evaluated_company(company_id)
-            if not company:
-                failed_deletions.append(f"Company with ID '{company_id}' not found.")
-                continue
-            # Append a JSON object
-            success_deletions.append({"name": company["name"], "id": str(company_id)})
+            try:
+                # Fetch the company by ID
+                company = await CompanyService.get_evaluated_company(company_id)
+                if not company:
+                    failed_deletions.append(f"Company with ID '{company_id}' not found.")
+                    continue
+                # Append a JSON object
+                success_deletions.append({"name": company["name"], "id": str(company_id)})
+
+            except Exception as e:
+                failed_deletions.append(f"Error with ID '{company_id}': {str(e)}")
 
         # If there are valid companies to delete, pass them to the service
         if success_deletions:
