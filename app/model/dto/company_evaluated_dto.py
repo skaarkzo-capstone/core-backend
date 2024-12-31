@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 
@@ -9,6 +10,7 @@ class ReasoningDTO(BaseModel):
 
 
 class EvaluatedCompanyDTO(BaseModel):
+    id: Optional[str] = None
     name: str
     date: datetime
     score: int
