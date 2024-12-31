@@ -114,13 +114,13 @@ async def delete_companies(request: List[CompanyRequest]):
                 # Fetch the company by ID
                 company = await CompanyService.get_evaluated_company(company_id)
                 if not company:
-                    failed_companies.append({"id": company_id, "reason": "Company not found"})
+                    failed_companies.append({"id": str(company_id), "reason": "Company not found"})
                     continue
                 # Append a JSON object
-                valid_companies.append({"id": company_id, "name": company["name"]})
+                valid_companies.append({"id": str(company_id), "name": company["name"]})
 
             except Exception as e:
-                failed_companies.append(f"Error with ID '{company_id}': {str(e)}")
+                failed_companies.append({"id": str(company_id), "reason": f"Error: {str(e)}"})
 
         # If there are valid companies to delete, pass them to the service
         if valid_companies:
