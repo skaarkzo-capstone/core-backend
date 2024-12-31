@@ -12,8 +12,10 @@ class CompanyService:
     @staticmethod
     async def get_evaluated_company(company_id: ObjectId):
         evaluated_companies_collection = database["evaluated_companies"]
+
         try:
             return await evaluated_companies_collection.find_one({"_id": company_id})
+
         except httpx.HTTPStatusError as e:
 
             if e.response.status_code == 404:
@@ -21,6 +23,7 @@ class CompanyService:
                                     detail=f"Unable to find company with ID {company_id}")
 
         except Exception as e:
+
             raise HTTPException(status_code=500,
                                 detail=f"Error fetching company with ID {company_id}: {e}")
 
@@ -69,6 +72,7 @@ class CompanyService:
     @staticmethod
     async def delete_companies(company_ids: List[ObjectId]):
         evaluated_companies_collection = database["evaluated_companies"]
+
         try:
             await evaluated_companies_collection.delete_many({"_id": {"$in": company_ids}})
         except Exception as e:
