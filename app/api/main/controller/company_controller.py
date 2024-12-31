@@ -64,11 +64,9 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
 
 @router.put("/company/compliance")
 async def toggle_compliance(request: List[CompanyRequest]):
-    evaluated_companies_collection = database["evaluated_companies"]
-    failed_toggles = []
-    success_toggles = []
-
     company_ids = [ObjectId(company_request.id) for company_request in request]
+    failed_companies = []
+    valid_companies = []
 
     try:
         for company_id in company_ids:
@@ -76,7 +74,7 @@ async def toggle_compliance(request: List[CompanyRequest]):
                 # Find the company by ID
                 company = await CompanyService.get_evaluated_company(company_id)
                 if not company:
-                    failed_toggles.append({"id": str(company_id), "reason": "Company not found"})
+                    failed_companies.append({"id": str(company_id), "reason": "Company not found"})
                     continue
 
                 # Get the current compliance value
@@ -84,17 +82,17 @@ async def toggle_compliance(request: List[CompanyRequest]):
 
                 # Toggle the compliance value
                 new_compliance_status = await CompanyService.toggle_compliance(str(company_id), current_compliance)
-                success_toggles.append({
+                valid_companies.append({
                     "id": str(company_id),
                     "name": company["name"],
                     "compliance": new_compliance_status
                 })
             except Exception as e:
-                failed_toggles.append({"id": str(company_id), "reason": str(e)})
+                failed_companies.append({"id": str(company_id), "reason": str(e)})
 
         return {
-            "success": success_toggles,
-            "failed": failed_toggles
+            "success": valid_companies,
+            "failed": failed_companies
         }
 
     except Exception as e:
@@ -107,8 +105,8 @@ async def toggle_compliance(request: List[CompanyRequest]):
 @router.delete("/delete-companies")
 async def delete_companies(request: List[CompanyRequest]):
     company_ids = [ObjectId(company_request.id) for company_request in request]
-    failed_deletions = []
-    success_deletions = []
+    failed_companies = []
+    valid_companies = []
 
     try:
         for company_id in company_ids:
@@ -116,22 +114,22 @@ async def delete_companies(request: List[CompanyRequest]):
                 # Fetch the company by ID
                 company = await CompanyService.get_evaluated_company(company_id)
                 if not company:
-                    failed_deletions.append(f"Company with ID '{company_id}' not found.")
+                    failed_companies.append({"id": company_id, "reason": "Company not found"})
                     continue
                 # Append a JSON object
-                success_deletions.append({"name": company["name"], "id": str(company_id)})
+                valid_companies.append({"name": company["name"], "id": str(company_id)})
 
             except Exception as e:
-                failed_deletions.append(f"Error with ID '{company_id}': {str(e)}")
+                failed_companies.append(f"Error with ID '{company_id}': {str(e)}")
 
         # If there are valid companies to delete, pass them to the service
-        if success_deletions:
-            valid_company_ids = [ObjectId(company["id"]) for company in success_deletions]
+        if valid_companies:
+            valid_company_ids = [ObjectId(company["id"]) for company in valid_companies]
             await CompanyService.delete_companies(valid_company_ids)
 
         return {
-            "success": success_deletions,
-            "failed": failed_deletions
+            "success": valid_companies,
+            "failed": failed_companies
         }
 
     except Exception as e:
@@ -139,7 +137,7 @@ async def delete_companies(request: List[CompanyRequest]):
             status_code=500,
             detail={
                 "message": f"An error occurred while deleting companies: {str(e)}",
-                "success": success_deletions,
-                "failed": failed_deletions,
+                "success": valid_companies,
+                "failed": failed_companies,
             },
         )
