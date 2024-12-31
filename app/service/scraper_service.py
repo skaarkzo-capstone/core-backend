@@ -1,14 +1,14 @@
 import httpx
 from fastapi import HTTPException
 
-from app.model.request.search_request import SearchRequest
+from app.model.request.company_request import CompanyRequest
 from app.core.config import config
 
 
 class ScraperService:
 
     @staticmethod
-    async def get_company_scraped_data(search_request: SearchRequest):
+    async def get_company_scraped_data(search_request: CompanyRequest):
         url = config.data_scraper_service.SCRAPE_COMPANY
 
         async with httpx.AsyncClient(timeout=config.MAX_TIMEOUT) as client:
