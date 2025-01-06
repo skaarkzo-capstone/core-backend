@@ -17,7 +17,7 @@ async def get_all_evaluated_companies():
         return await CompanyService.get_all_evaluated_companies()
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"An error occurred: {str(e)}"
+            status_code=500, detail=f"{str(e)}"
         )
 
 
@@ -36,7 +36,7 @@ async def get_company_scraped_data(search_request: CompanyRequest):
         return scraped_company_data
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"An error occurred: {str(e)}"
+            status_code=500, detail=f"{str(e)}"
         )
 
 
@@ -47,7 +47,7 @@ async def get_company_evaluation(scraped_company_data: dict) -> EvaluatedCompany
         return evaluated_company_data
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"An error occurred: {str(e)}"
+            status_code=500, detail=f"{str(e)}"
         )
 
 
@@ -62,7 +62,7 @@ async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO
     except Exception as e:
 
         raise HTTPException(
-            status_code=500, detail=f"An error occurred: {str(e)}"
+            status_code=500, detail=f"{str(e)}"
         )
 
 
@@ -90,7 +90,7 @@ async def toggle_compliance(request: List[CompanyRequest]):
         raise HTTPException(
             status_code=500,
             detail={
-                "message": f"An error occurred: {str(e)}",
+                "message": str(e),
                 "success": successful_toggles,
                 "failed": failed_companies,
             })
@@ -118,7 +118,7 @@ async def delete_companies(request: List[CompanyRequest]):
         raise HTTPException(
             status_code=500,
             detail={
-                "message": f"An error occurred while deleting companies: {str(e)}",
+                "message": str(e),
                 "success": valid_companies,
                 "failed": failed_companies,
             },

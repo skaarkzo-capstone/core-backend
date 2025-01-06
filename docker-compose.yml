@@ -1,21 +1,51 @@
 version: '3.8'
 
 services:
+
   sustain-database:
     image: mongo:latest
     container_name: sustain-db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: "localhost-root"
-      MONGO_INITDB_ROOT_PASSWORD: "localhost-password"
+      MONGO_INITDB_ROOT_USERNAME: "sustain-db-local-root"
+      MONGO_INITDB_ROOT_PASSWORD: "sustain-db-local-password"
     ports:
       - "27017:27017"
     volumes:
       - sustain-db-data:/data/db
     networks:
-      - core-backend-network
+      - sustain-network
+
+
+  core-backend:
+    build:
+      context: ../core-backend
+    container_name: core-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../core-backend:/app
+      - /app/__pycache__/     # To ignore Python cache files in volume
+    depends_on:
+      - sustain-database
+    networks:
+      - sustain-network
+
+
+  data-scraper-service:
+    build:
+      context: ../data-scraper-service
+    container_name: data-scraper-service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../data-scraper-service:/app
+      - /app/__pycache__/     # To ignore Python cache files in volume
+    networks:
+      - sustain-network
+
 
 volumes:
   sustain-db-data:
 
 networks:
-  core-backend-network:
+  sustain-network:
