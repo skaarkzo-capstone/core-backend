@@ -1,5 +1,6 @@
 import httpx
-from fastapi import HTTPException
+import asyncio
+from fastapi import HTTPException, Request
 
 from app.model.request.company_request import CompanyRequest
 from app.core.config import config
@@ -8,17 +9,31 @@ from app.core.config import config
 class ScraperService:
 
     @staticmethod
-    async def get_company_scraped_data(search_request: CompanyRequest):
+    async def get_company_scraped_data(search_request: CompanyRequest, request: Request):
         url = config.data_scraper_service.SCRAPE_COMPANY
 
         async with httpx.AsyncClient(timeout=config.MAX_TIMEOUT) as client:
             try:
-                response = await client.post(url, json=search_request.dict())
+                task = asyncio.create_task(
+                    client.post(url, json=search_request.dict())
+                )
+
+                while not task.done():
+                    if await request.is_disconnected():
+                        task.cancel()
+                        raise HTTPException(status_code=499, detail="Client disconnected during request.")
+
+                    await asyncio.sleep(0.1)    # Cancellation checks (non-blocking delay)
+
+                response = await task
                 response.raise_for_status()
 
                 non_pdf_scraped_data = ScraperService.traverse_and_remove_pdfs(response.json())
                 return non_pdf_scraped_data
                 # return response.json()
+
+            except asyncio.CancelledError:
+                raise HTTPException(status_code=499, detail="Client request was cancelled")
 
             except httpx.HTTPStatusError as e:
 

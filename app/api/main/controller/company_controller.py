@@ -1,5 +1,6 @@
+import asyncio
 from typing import List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from app.service.company_service import CompanyService
 from app.service.scraper_service import ScraperService
@@ -22,7 +23,7 @@ async def get_all_evaluated_companies():
 
 
 @router.post("/company")
-async def get_company_scraped_data(search_request: CompanyRequest):
+async def get_company_scraped_data(search_request: CompanyRequest, request: Request):
     # TODO: Uncomment when companies are added to DB.
     # company = await CompanyService.get_company(search_request.companyName)
 
@@ -32,8 +33,15 @@ async def get_company_scraped_data(search_request: CompanyRequest):
     #     )
 
     try:
-        scraped_company_data = await ScraperService.get_company_scraped_data(search_request)
+        scraped_company_data = await ScraperService.get_company_scraped_data(search_request, request)
+        if await request.is_disconnected():
+            raise HTTPException(status_code=499, detail="Client disconnected during processing.")
+
         return scraped_company_data
+
+    except asyncio.CancelledError as e:
+        raise HTTPException(status_code=499, detail=str(e))
+
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"An error occurred: {str(e)}"
@@ -52,12 +60,21 @@ async def get_company_evaluation(scraped_company_data: dict) -> EvaluatedCompany
 
 
 @router.post("/complete-evaluation")
-async def full_evaluation(search_request: CompanyRequest) -> EvaluatedCompanyDTO:
+async def full_evaluation(search_request: CompanyRequest, request: Request) -> EvaluatedCompanyDTO:
     try:
 
-        scraped_company_data = await ScraperService.get_company_scraped_data(search_request)
+        scraped_company_data = await ScraperService.get_company_scraped_data(search_request, request)
+        if await request.is_disconnected():
+            raise HTTPException(status_code=499, detail="Client disconnected during processing.")
+
         evaluated_company_data = await LLMService.evaluate_company(scraped_company_data)
+        if await request.is_disconnected():
+            raise HTTPException(status_code=499, detail="Client disconnected during processing.")
+
         return evaluated_company_data
+
+    except asyncio.CancelledError as e:
+        raise HTTPException(status_code=499, detail=str(e))
 
     except Exception as e:
 
