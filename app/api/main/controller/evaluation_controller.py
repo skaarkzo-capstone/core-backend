@@ -20,7 +20,7 @@ async def get_all_evaluated_companies():
 
 
 @router.post("/company")
-async def get_company_scraped_data(search_request: CompanyRequest, request: Request):
+async def get_company_scraped_data(company_request: CompanyRequest, request: Request):
     # TODO: Uncomment when companies are added to DB.
     # company = await CompanyService.get_company(search_request.companyName)
 
@@ -30,7 +30,7 @@ async def get_company_scraped_data(search_request: CompanyRequest, request: Requ
     #     )
 
     try:
-        scraped_company_data = await ScraperService.get_company_scraped_data(search_request, request)
+        scraped_company_data = await ScraperService.get_company_scraped_data(company_request, request)
 
         if await request.is_disconnected():
             raise HTTPException(status_code=499, detail="Client disconnected during processing.")
@@ -58,10 +58,10 @@ async def get_company_evaluation(scraped_company_data: dict) -> EvaluatedCompany
 
 
 @router.post("/complete-evaluation")
-async def full_evaluation(search_request: CompanyRequest, request: Request) -> EvaluatedCompanyDTO:
+async def full_evaluation(company_request: CompanyRequest, request: Request) -> EvaluatedCompanyDTO:
     try:
 
-        scraped_company_data = await ScraperService.get_company_scraped_data(search_request, request)
+        scraped_company_data = await ScraperService.get_company_scraped_data(company_request, request)
 
         if await request.is_disconnected():
             raise HTTPException(status_code=499, detail="Client disconnected during processing.")
