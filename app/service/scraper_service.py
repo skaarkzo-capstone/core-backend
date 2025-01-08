@@ -33,7 +33,7 @@ class ScraperService:
                 # return response.json()
 
             except asyncio.CancelledError:
-                raise HTTPException(status_code=499, detail="Client request was cancelled")
+                raise HTTPException(status_code=499, detail="Evaluation request was cancelled.")
 
             except httpx.HTTPStatusError as e:
 
