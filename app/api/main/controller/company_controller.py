@@ -32,7 +32,7 @@ async def toggle_compliance(request: List[CompanyRequest]):
         raise HTTPException(
             status_code=500,
             detail={
-                "message": f"An error occurred: {str(e)}",
+                "message": str(e),
                 "success": successful_toggles,
                 "failed": failed_companies,
             })
@@ -60,7 +60,7 @@ async def delete_companies(request: List[CompanyRequest]):
         raise HTTPException(
             status_code=500,
             detail={
-                "message": f"An error occurred while deleting companies: {str(e)}",
+                "message": str(e),
                 "success": valid_companies,
                 "failed": failed_companies,
             },
