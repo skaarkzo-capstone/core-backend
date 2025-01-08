@@ -12,9 +12,9 @@ class Configuration(BaseSettings):
     VERSION: str = "1.0.0"
     API_PREFIX: str = "/api/main"
 
-    MONGO_USER: str = "localhost-root"
-    MONGO_PASSWORD: str = "localhost-password"
-    MONGO_HOST: str = "localhost"
+    MONGO_USER: str = "sustain-db-local-root"
+    MONGO_PASSWORD: str = "sustain-db-local-password"
+    MONGO_HOST: str = "sustain-database"
     MONGO_PORT: int = 27017
     MONGO_DB: str = "sustain-db"
 
@@ -28,7 +28,7 @@ class Configuration(BaseSettings):
     MAX_TIMEOUT: Timeout = Timeout(None)
 
     class DataScraperServiceConfig:
-        SCRAPE_COMPANY: str = "http://localhost:8001/api/scraper/company"  # POST
+        SCRAPE_COMPANY: str = "http://data-scraper-service:8001/api/scraper/company"  # POST
 
     @property
     def data_scraper_service(self):

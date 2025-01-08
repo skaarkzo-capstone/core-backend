@@ -66,7 +66,7 @@ class CompanyService:
             if updated_company and updated_company.get("compliance") == new_compliance_status:
                 return new_compliance_status
 
-        raise HTTPException(status_code=500, detail="Failed to toggle compliance")
+        raise HTTPException(status_code=500, detail="An error occurred: Failed to toggle compliance")
 
     # Delete the companies
     @staticmethod
