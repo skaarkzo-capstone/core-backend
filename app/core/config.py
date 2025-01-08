@@ -23,9 +23,8 @@ class Configuration(BaseSettings):
         return (f"mongodb://{self.MONGO_USER}:{self.MONGO_PASSWORD}@"
                 f"{self.MONGO_HOST}:{self.MONGO_PORT}/{self.MONGO_DB}?authSource=admin")
 
-    # TODO: Add a non-None timeout when data scraper handles ending process on no response received.
     # Max timeout before endpoint returns a 500 internal service error for timing out.
-    MAX_TIMEOUT: Timeout = Timeout(None)
+    MAX_TIMEOUT: Timeout = Timeout(180)
 
     class DataScraperServiceConfig:
         SCRAPE_COMPANY: str = "http://data-scraper-service:8001/api/scraper/company"  # POST
