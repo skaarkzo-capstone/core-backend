@@ -1,11 +1,22 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 
+from app.model.dto.company_evaluated_dto import EvaluatedCompanyDTO
 from app.service.company_service import CompanyService
 from app.model.request.company_request import CompanyRequest
 from bson import ObjectId
 
 router = APIRouter()
+
+
+@router.get("/evaluated-companies", response_model=list[EvaluatedCompanyDTO])
+async def get_all_evaluated_companies():
+    try:
+        return await CompanyService.get_all_evaluated_companies()
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"An error occurred: {str(e)}"
+        )
 
 
 @router.put("/company/compliance")

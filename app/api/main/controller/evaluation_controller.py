@@ -10,16 +10,6 @@ from app.model.request.company_request import CompanyRequest
 router = APIRouter()
 
 
-@router.get("/evaluated-companies", response_model=list[EvaluatedCompanyDTO])
-async def get_all_evaluated_companies():
-    try:
-        return await CompanyService.get_all_evaluated_companies()
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"An error occurred: {str(e)}"
-        )
-
-
 @router.post("/company")
 async def get_company_scraped_data(company_request: CompanyRequest, request: Request):
     # TODO: Uncomment when companies are added to DB.
