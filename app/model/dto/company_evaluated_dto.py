@@ -13,6 +13,5 @@ class EvaluatedCompanyDTO(BaseModel):
     id: Optional[str] = None
     name: str
     date: datetime
-    score: int
     reasoning: ReasoningDTO
     compliance: bool

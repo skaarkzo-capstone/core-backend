@@ -35,7 +35,7 @@ class Configuration(BaseSettings):
 
     class LLMServiceConfig:
         LLM_BASE_URL: str = os.getenv("LLM_BASE_URL")
-        EVALUATE_COMPANY: str = f"{LLM_BASE_URL}/api/llm/chat"
+        EVALUATE_COMPANY: str = f"{LLM_BASE_URL}/api/llm/evaluate"
 
     @property
     def llm_service(self):
