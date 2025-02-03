@@ -38,9 +38,9 @@ async def get_company_scraped_data(company_request: CompanyRequest, request: Req
 
 
 @router.post("/company/evaluate")
-async def get_company_evaluation(scraped_company_data: dict, request: Request) -> EvaluatedCompanyDTO:
+async def get_company_evaluation(scraped_company_data: dict, company_request: CompanyRequest, request: Request) -> EvaluatedCompanyDTO:
     try:
-        evaluated_company_data = await LLMService.evaluate_company(scraped_company_data, request)
+        evaluated_company_data = await LLMService.evaluate_company(scraped_company_data, company_request, request)
 
         if await request.is_disconnected():
             raise HTTPException(status_code=499, detail="Client disconnected during processing.")
@@ -65,7 +65,7 @@ async def full_evaluation(company_request: CompanyRequest, request: Request) -> 
         if await request.is_disconnected():
             raise HTTPException(status_code=499, detail="Client disconnected during processing.")
 
-        evaluated_company_data = await LLMService.evaluate_company(scraped_company_data, request)
+        evaluated_company_data = await LLMService.evaluate_company(scraped_company_data, company_request, request)
 
         if await request.is_disconnected():
             raise HTTPException(status_code=499, detail="Client disconnected during processing.")
