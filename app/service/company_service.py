@@ -42,7 +42,7 @@ class CompanyService:
             # MongoDB's ObjectId to a string
             document["id"] = str(document.pop("_id"))
 
-            # ** unpacks the document dictionary and maps each k/v pair to the correct CompanyDTO field.
+            # ** unpacks the document dictionary and maps each k/v pair to the correct EvaluatedCompanyDTO field.
             company = EvaluatedCompanyDTO(**document)
             companies.append(company)
 

@@ -20,45 +20,31 @@ class LLMService:
 
         async with httpx.AsyncClient(timeout=config.MAX_TIMEOUT) as client:
             try:
-                pure_play_task = asyncio.create_task(
-                    client.post(url_pure_play, json=scraped_data)
-                )
-
-                while not pure_play_task.done():
-                    if await request.is_disconnected():
-                        pure_play_task.cancel()
-                        raise HTTPException(status_code=499, detail="Client disconnected during request.")
-
-                    await asyncio.sleep(0.1)  # Cancellation checks (non-blocking delay)
-
-                pure_play_reasoning_response = await pure_play_task
-                pure_play_reasoning_response.raise_for_status()
-                pure_play_reasoning = pure_play_reasoning_response.json()
+                pure_play_reasoning = await LLMService.fetch_evaluation_response(client,
+                                                                                 request,
+                                                                                 url_pure_play,
+                                                                                 scraped_data)
 
                 if pure_play_reasoning.get("pure_play"):
-                    await evaluated_companies_collection.insert_one(pure_play_reasoning_response.json())
+
+                    inserted_company = await evaluated_companies_collection.insert_one(pure_play_reasoning)
+                    pure_play_reasoning["id"] = str(inserted_company.inserted_id)
+
                     evaluated_data = pure_play_reasoning
+
                 else:
                     company_transactions = await CompanyService.get_company_transactions(company_request.company_name)
 
-                    transactions_task = asyncio.create_task(
-                        client.post(url_transactions, json=company_transactions)
-                    )
-
-                    while not transactions_task.done():
-                        if await request.is_disconnected():
-                            transactions_task.cancel()
-                            raise HTTPException(status_code=499, detail="Client disconnected during request.")
-
-                        await asyncio.sleep(0.1)  # Cancellation checks (non-blocking delay)
-
-                    transactions_reasoning_response = await transactions_task
-                    transactions_reasoning_response.raise_for_status()
-                    transactions_reasoning = transactions_reasoning_response.json()
+                    transactions_reasoning = await LLMService.fetch_evaluation_response(client,
+                                                                                        request,
+                                                                                        url_transactions,
+                                                                                        company_transactions)
 
                     evaluated_data = {**pure_play_reasoning, **transactions_reasoning}
+                    inserted_company = await evaluated_companies_collection.insert_one(evaluated_data)
+                    evaluated_data["id"] = str(inserted_company.inserted_id)
 
-                return EvaluatedCompanyDTO(**evaluated_data.json())
+                return EvaluatedCompanyDTO(**evaluated_data)
 
             except asyncio.CancelledError as e:
                 raise HTTPException(status_code=499, detail="Evaluation request was cancelled.")
@@ -78,3 +64,22 @@ class LLMService:
                 raise HTTPException(status_code=500,
                                     detail="An unexpected error occurred trying to reach the LLM Service. "
                                            "Please try again later.")
+
+    @staticmethod
+    async def fetch_evaluation_response(client: httpx.AsyncClient,
+                                               request: Request,
+                                               url: str,
+                                               payload: dict) -> dict:
+
+        task = asyncio.create_task(client.post(url, json=payload))
+
+        while not task.done():
+            if await request.is_disconnected():
+                task.cancel()
+                raise HTTPException(status_code=499, detail="Client disconnected during request.")
+
+            await asyncio.sleep(0.1)
+
+        response = await task
+        response.raise_for_status()
+        return response.json()
