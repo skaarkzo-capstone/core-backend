@@ -5,6 +5,8 @@ from bson import ObjectId
 from fastapi import HTTPException
 import httpx
 
+from app.model.dto.company_transactions_dto import CompanyTransactionsDTO
+
 
 class CompanyService:
 
@@ -40,7 +42,7 @@ class CompanyService:
             # MongoDB's ObjectId to a string
             document["id"] = str(document.pop("_id"))
 
-            # ** unpacks the document dictionary and maps each k/v pair to the correct CompanyDTO field.
+            # ** unpacks the document dictionary and maps each k/v pair to the correct EvaluatedCompanyDTO field.
             company = EvaluatedCompanyDTO(**document)
             companies.append(company)
 
@@ -77,3 +79,27 @@ class CompanyService:
             await evaluated_companies_collection.delete_many({"_id": {"$in": company_ids}})
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting companies: {e}")
+
+    # Fetch transactions of a company based on its name.
+    @staticmethod
+    async def get_company_transactions(company_name: str):
+        transactions_collection = database["company_transactions"]
+
+        try:
+            company_document = await transactions_collection.find_one({"name": company_name})
+            company_document["id"] = str(company_document.pop("_id"))
+
+            company = {**company_document}
+
+            return company
+
+        except httpx.HTTPStatusError as e:
+
+            if e.response.status_code == 404:
+                raise HTTPException(status_code=e.response.status_code,
+                                    detail=f"Unable to find company with name: {company_name}")
+
+        except Exception as e:
+
+            raise HTTPException(status_code=500,
+                                detail=f"Error fetching company {company_name}: {e}")

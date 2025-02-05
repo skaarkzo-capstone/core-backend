@@ -35,7 +35,8 @@ class Configuration(BaseSettings):
 
     class LLMServiceConfig:
         LLM_BASE_URL: str = os.getenv("LLM_BASE_URL")
-        EVALUATE_COMPANY: str = f"{LLM_BASE_URL}/api/llm/evaluate"
+        EVALUATE_COMPANY_PURE_PLAY: str = f"{LLM_BASE_URL}/api/llm/evaluate/pure-play"
+        EVALUATE_COMPANY_TRANSACTIONS: str = f"{LLM_BASE_URL}/api/llm/evaluate/transaction"
 
     @property
     def llm_service(self):

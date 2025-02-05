@@ -2,16 +2,13 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-
-class ReasoningDTO(BaseModel):
-    green: str
-    decarbonization: str
-    social: str
+from app.model.dto.company_transactions_dto import EvaluatedTransactionDTO
 
 
 class EvaluatedCompanyDTO(BaseModel):
     id: Optional[str] = None
     name: str
     date: datetime
-    reasoning: ReasoningDTO
-    compliance: bool
+    pure_play: bool
+    pure_play_reasoning: str
+    evaluated_transactions: list[EvaluatedTransactionDTO] = []
