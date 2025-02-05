@@ -9,13 +9,13 @@ from app.core.config import config
 class ScraperService:
 
     @staticmethod
-    async def get_company_scraped_data(search_request: CompanyRequest, request: Request):
+    async def get_company_scraped_data(company_request: CompanyRequest, request: Request):
         url = config.data_scraper_service.SCRAPE_COMPANY
 
         async with httpx.AsyncClient(timeout=config.MAX_TIMEOUT) as client:
             try:
                 task = asyncio.create_task(
-                    client.post(url, json=search_request.dict())
+                    client.post(url, json=company_request.dict())
                 )
 
                 while not task.done():
@@ -39,7 +39,7 @@ class ScraperService:
 
                 if e.response.status_code == 404:
                     raise HTTPException(status_code=e.response.status_code,
-                                        detail=f"Company data not found for: {search_request.company_name}")
+                                        detail=f"Company data not found for: {company_request.company_name}")
 
                 raise HTTPException(status_code=e.response.status_code,
                                     detail=f"Data Scraper Service returned an unexpected error: "

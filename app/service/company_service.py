@@ -89,8 +89,9 @@ class CompanyService:
             company_document = await transactions_collection.find_one({"name": company_name})
             company_document["id"] = str(company_document.pop("_id"))
 
-            company = CompanyTransactionsDTO(**company_document)
-            return company["transactions"]
+            company = {**company_document}
+
+            return company
 
         except httpx.HTTPStatusError as e:
 

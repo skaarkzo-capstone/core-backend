@@ -12,7 +12,8 @@ from app.service.company_service import CompanyService
 class LLMService:
 
     @staticmethod
-    async def evaluate_company(scraped_data: dict, company_request: CompanyRequest, request: Request) -> EvaluatedCompanyDTO:
+    async def evaluate_company(scraped_data: dict, company_request: CompanyRequest,
+                               request: Request) -> EvaluatedCompanyDTO:
         url_pure_play = config.llm_service.EVALUATE_COMPANY_PURE_PLAY
         url_transactions = config.llm_service.EVALUATE_COMPANY_TRANSACTIONS
 
@@ -25,22 +26,19 @@ class LLMService:
                                                                                  url_pure_play,
                                                                                  scraped_data)
 
-                if pure_play_reasoning.get("pure_play"):
-
-                    inserted_company = await evaluated_companies_collection.insert_one(pure_play_reasoning)
-                    pure_play_reasoning["id"] = str(inserted_company.inserted_id)
-
+                if pure_play_reasoning["pure_play"] == True:        # Can be simplified, but condition seems to fail that way.
+                    await evaluated_companies_collection.insert_one(pure_play_reasoning)
                     evaluated_data = pure_play_reasoning
 
                 else:
                     company_transactions = await CompanyService.get_company_transactions(company_request.company_name)
 
-                    transactions_reasoning = await LLMService.fetch_evaluation_response(client,
+                    evaluated_transactions = await LLMService.fetch_evaluation_response(client,
                                                                                         request,
                                                                                         url_transactions,
                                                                                         company_transactions)
 
-                    evaluated_data = {**pure_play_reasoning, **transactions_reasoning}
+                    evaluated_data = {**pure_play_reasoning, **evaluated_transactions}
                     inserted_company = await evaluated_companies_collection.insert_one(evaluated_data)
                     evaluated_data["id"] = str(inserted_company.inserted_id)
 
@@ -52,7 +50,7 @@ class LLMService:
             except httpx.HTTPStatusError as e:
 
                 raise HTTPException(status_code=e.response.status_code,
-                                    detail=f"LLM Service returned an unexpected error: {e.response.text}")
+                                    detail=f"LLM Service returned an unexpected error: {e}")
 
             except httpx.TimeoutException as e:
 
@@ -67,9 +65,9 @@ class LLMService:
 
     @staticmethod
     async def fetch_evaluation_response(client: httpx.AsyncClient,
-                                               request: Request,
-                                               url: str,
-                                               payload: dict) -> dict:
+                                        request: Request,
+                                        url: str,
+                                        payload: dict) -> dict:
 
         task = asyncio.create_task(client.post(url, json=payload))
 
